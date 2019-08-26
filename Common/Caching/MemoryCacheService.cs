@@ -1,19 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json.Bson;
 
-namespace Common
+namespace Common.Caching
 {
     public class MemoryCacheService : ICacheService, IDisposable
     {
-        protected IMemoryCache _cache;
+        private readonly MemoryCache _cache;
 
-        public MemoryCacheService(IMemoryCache cache)
+        public MemoryCacheService() : this(nameof(MemoryCacheService))
         {
-            _cache = cache;
+
+        }
+        public MemoryCacheService(string name)
+        {
+            _cache = new MemoryCache(name);
+            _cache.AddOrGetExisting()
+        }
+
+        public static MemoryCacheService Default => InternalClass._instance;
+
+        class InternalClass
+        {
+            static InternalClass() { }
+            public static MemoryCacheService _instance = new MemoryCacheService();
         }
 
         /// <summary>
@@ -27,8 +39,8 @@ namespace Common
             {
                 throw new ArgumentNullException(nameof(key));
             }
-            object cached;
-            return _cache.TryGetValue(key, out cached);
+
+            return _cache.Contains(key);
         }
         /// <summary>
         /// 验证缓存项是否存在（异步方式）
@@ -42,7 +54,7 @@ namespace Common
                 throw new ArgumentNullException(nameof(key));
             }
             object cached;
-            return Task.Run(() => _cache.TryGetValue(key, out cached));
+            return Task.Run(() => _cache.Contains(key));
         }
         /// <summary>
         /// 添加缓存
@@ -60,8 +72,8 @@ namespace Common
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            _cache.Set(key, value);
-            return Exists(key);
+
+            return _cache.Add(key, value, DateTimeOffset.MaxValue);
         }
         /// <summary>
         /// 添加缓存（异步方式）
@@ -80,11 +92,7 @@ namespace Common
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return Task.Run(() =>
-           {
-               _cache.Set(key, value);
-               return Exists(key);
-           });
+            return Task.Run(() => _cache.Add(key, value, DateTimeOffset.MaxValue));
         }
         /// <summary>
         /// 添加缓存
@@ -104,14 +112,14 @@ namespace Common
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            _cache.Set(key, value,
-                    new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(expiresSliding)
-                    .SetAbsoluteExpiration(expiressAbsoulte)
-                    );
 
-            return Exists(key);
 
+            return _cache.Add(new CacheItem(key, value),
+                 new CacheItemPolicy()
+                 {
+                     SlidingExpiration = expiresSliding,
+                     AbsoluteExpiration = DateTimeOffset.Now.Add(expiressAbsoulte)
+                 });
         }
         /// <summary>
         /// 添加缓存（异步方式）
@@ -134,12 +142,12 @@ namespace Common
 
             return Task.Run(() =>
             {
-                _cache.Set(key, value,
-                        new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(expiresSliding)
-                        .SetAbsoluteExpiration(expiressAbsoulte)
-                        );
-                return Exists(key);
+                return _cache.Add(new CacheItem(key, value),
+                    new CacheItemPolicy()
+                    {
+                        SlidingExpiration = expiresSliding,
+                        AbsoluteExpiration = DateTimeOffset.Now.Add(expiressAbsoulte)
+                    });
             });
         }
         /// <summary>
@@ -160,18 +168,11 @@ namespace Common
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            if (isSliding)
-                _cache.Set(key, value,
-                    new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(expiresIn)
-                    );
-            else
-                _cache.Set(key, value,
-                new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(expiresIn)
-                );
 
-            return Exists(key);
+            if (isSliding)
+                return _cache.Add(key, value, new CacheItemPolicy() { SlidingExpiration = expiresIn });
+            else
+                return _cache.Add(key, value, DateTimeOffset.Now.Add(expiresIn));
         }
         /// <summary>
         /// 添加缓存（异步方式）
@@ -195,17 +196,9 @@ namespace Common
             return Task.Run(() =>
             {
                 if (isSliding)
-                    _cache.Set(key, value,
-                        new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(expiresIn)
-                        );
+                    return _cache.Add(key, value, new CacheItemPolicy() { SlidingExpiration = expiresIn });
                 else
-                    _cache.Set(key, value,
-                    new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(expiresIn)
-                    );
-
-                return Exists(key);
+                    return _cache.Add(key, value, DateTimeOffset.Now.Add(expiresIn));
             });
         }
         /// <summary>
