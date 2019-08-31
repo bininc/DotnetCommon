@@ -17,7 +17,6 @@ namespace Common.Caching
         public MemoryCacheService(string name)
         {
             _cache = new MemoryCache(name);
-            _cache.AddOrGetExisting()
         }
 
         public static MemoryCacheService Default => InternalClass._instance;

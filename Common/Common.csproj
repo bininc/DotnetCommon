@@ -2,6 +2,7 @@
   <UsingTask TaskName="GetCurrentBuildVersion" AssemblyFile="lib\BuildVersion.Task.dll" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Es.Extensions.Logging.NLog" Version="1.0.8" />
