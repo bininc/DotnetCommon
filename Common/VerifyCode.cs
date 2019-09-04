@@ -87,7 +87,7 @@ namespace Common
         /// <param name="dPhase">波形的起始相位，取值区间[0-2*PI)</param>
         /// <returns></returns>
         public Bitmap TwistImage(Bitmap srcBmp, bool bXDir, double dMultValue, double dPhase)
-        {
+        {          
             System.Drawing.Bitmap destBmp = new Bitmap(srcBmp.Width, srcBmp.Height);
 
             // 将位图背景填充为白色
