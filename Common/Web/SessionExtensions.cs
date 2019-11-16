@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using System.Security.Claims;
 
 namespace Common.Web
 {
@@ -31,7 +32,7 @@ namespace Common.Web
             }
         }
 
-        public static string GetString(this ISession session,string key)
+        public static string GetString(this ISession session, string key)
         {
             byte[] values;
             bool suc = session.TryGetValue(key, out values);
@@ -44,6 +45,31 @@ namespace Common.Web
             {
                 return null;
             }
+        }
+
+        public static void SaveClaimsPrincipal(this ISession session, ClaimsPrincipal user)
+        {
+            if (user == null)
+            {
+                session.Remove("SUser");
+                return;
+            }
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            foreach (var item in user.Claims)
+            {
+                dic.Add(item.Type, item.Value);
+            }
+            session.Set("SUser", dic);
+        }
+
+        public static ClaimsPrincipal LoadClaimsPrincipal(this ISession session)
+        {
+            var dic = session.Get<Dictionary<string, string>>("SUser");
+            if (dic != null)
+            {
+                return new ClaimsPrincipal(new ClaimsIdentity(dic.Select(kv => new Claim(kv.Key, kv.Value)), "Basic"));
+            }
+            return null;
         }
     }
 }
