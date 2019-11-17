@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using Common.Compress;
 
-namespace CommLiby
+namespace Common
 {
     public class StringPlus
     {

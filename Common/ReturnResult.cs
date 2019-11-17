@@ -11,7 +11,7 @@ namespace Common
         /// <summary>
         /// 消息
         /// </summary>
-        public string msg { get; set; }
+        public string msg { get; set; } = string.Empty;
         /// <summary>
         /// 结果码 0-成功 -1-失败
         /// </summary>
@@ -36,7 +36,7 @@ namespace Common
         public ReturnResult()
         {
             code = -1;
-            icon = 2;
+            icon = 2;           
         }
 
         /// <summary>
