@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Common
+namespace CommLiby
 {
     /// <summary>
     /// 自定义特性类(描述)

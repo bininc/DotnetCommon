@@ -5,12 +5,8 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    public class CommonHelper
+    public static class CommonHelper
     {
-        public CommonHelper()
-        {
-            
-        }
 
         /// <summary>
         /// 获取一个GUID作为数据库表或者表单的主键
@@ -57,6 +53,30 @@ namespace Common
         #endregion
 
         /// <summary>
+        /// 转换对象类型
+        /// </summary>
+        /// <typeparam name="T">转换类型</typeparam>
+        /// <param name="obj"></param>
+        /// <param name="defaultValue">转换失败默认值</param>
+        /// <returns></returns>
+        public static T GetValue<T>(this object obj, T defaultValue = default(T))
+        {
+            if (obj == null) return defaultValue;
+
+            try
+            {
+                T result = (T)Convert.ChangeType(obj, typeof(T));
+                if (result.Equals(default(T)))
+                    result = defaultValue;
+                return result;
+            }
+            catch (Exception e)
+            {
+                return defaultValue;
+            }
+        }
+
+        /// <summary>
         /// 数据类型转换
         /// </summary>
         /// <param name="type">类型</param>
@@ -66,73 +86,7 @@ namespace Common
         {
             try
             {
-                if (type == typeof(byte))
-                {
-                    return Convert.ToByte(val);
-                }
-                else if (type == typeof(byte[]))
-                {
-                    return val as byte[];
-                }
-                else if (type == typeof(short))
-                {
-                    return Convert.ToInt16(val);
-                }
-                else if (type == typeof(ushort))
-                {
-                    if (val?.ToString() == "-1")
-                        return ushort.MaxValue;
-                    return Convert.ToUInt16(val);
-                }
-                else if (type == typeof(int)) //int类型
-                {
-                    return Convert.ToInt32(val);
-                }
-                else if (type == typeof(uint))
-                {
-                    try
-                    {
-                        return Convert.ToUInt32(val);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex);
-                        //超出范围默认为0
-                        return (uint)0;
-                    }
-                }
-                else if (type == typeof(long))
-                {
-                    return Convert.ToInt64(val);
-                }
-                else if (type == typeof(ulong))
-                {
-                    return Convert.ToUInt64(val);
-                }
-                else if (type == typeof(float))
-                {
-                    return Convert.ToSingle(val);
-                }
-                else if (type == typeof(double))
-                {
-                    return Convert.ToDouble(val);
-                }
-                else if (type == typeof(decimal))
-                {
-                    return Convert.ToDecimal(val);
-                }
-                else if (type == typeof(bool))
-                {
-                    return Convert.ToBoolean(val);
-                }
-                else if (type == typeof(DateTime))
-                {
-                    return Convert.ToDateTime(val);
-                }
-                else if (type == typeof(string))
-                    return val.ToString();
-                else
-                    return val;
+                return Convert.ChangeType(val, type);
             }
             catch (Exception ex)
             {

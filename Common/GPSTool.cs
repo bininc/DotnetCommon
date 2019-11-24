@@ -66,7 +66,7 @@ namespace Common
                     break;
                 case "西北":
                     res = "东南";
-                    break;                                                                                                                
+                    break;
                 default:
                     break;
             }
@@ -93,11 +93,27 @@ namespace Common
         /// <returns></returns>
         public static string GetLocateModeStr(byte locate)
         {
-            if (locate == 1) return "GPS";
-            else if (locate == 2) return "北斗";
-            else if (locate == 3) return "联合";
-            else
-                return "";
+            List<string> modeList = new List<string>();
+
+            if ((locate & 0x1) == 0x1) { modeList.Add("GPS"); }
+            if ((locate & 0x2) == 0x2) { modeList.Add("北斗"); }
+            if ((locate & 0x8) == 0x8) { modeList.Add("北斗一代"); }
+
+            return string.Join("+", modeList);
+        }
+
+        /// <summary>
+        /// 根据定位模式标记得到辅助定位描述
+        /// </summary>
+        /// <returns></returns>
+        public static string GetAssistLocateModeStr(byte locate)
+        {
+            List<string> modeList = new List<string>();
+            if ((locate & 0x4) == 0x4)
+            {
+                modeList.Add("惯导");
+            }
+            return string.Join("+", modeList);
         }
 
         private const double x_PI = 3.14159265358979324 * 3000.0 / 180.0;
@@ -172,8 +188,8 @@ namespace Common
                 double magic = Math.Sin(radlat);
                 magic = 1 - ee * magic * magic;
                 double sqrtmagic = Math.Sqrt(magic);
-                dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
-                dlng = (dlng * 180.0) / (a / sqrtmagic * Math.Cos(radlat) * PI);
+                dlat = dlat * 180.0 / (a * (1 - ee) / (magic * sqrtmagic) * PI);
+                dlng = dlng * 180.0 / (a / sqrtmagic * Math.Cos(radlat) * PI);
                 double mglat = lat + dlat;
                 double mglng = lng + dlng;
                 wgs84Pt.longitude = lng * 2 - mglng;
@@ -203,8 +219,8 @@ namespace Common
                 double magic = Math.Sin(radlat);
                 magic = 1 - ee * magic * magic;
                 double sqrtmagic = Math.Sqrt(magic);
-                dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
-                dlng = (dlng * 180.0) / (a / sqrtmagic * Math.Cos(radlat) * PI);
+                dlat = dlat * 180.0 / (a * (1 - ee) / (magic * sqrtmagic) * PI);
+                dlng = dlng * 180.0 / (a / sqrtmagic * Math.Cos(radlat) * PI);
                 gcjPt.longitude = lng + dlng;
                 gcjPt.latitude = lat + dlat;
                 return gcjPt;
@@ -255,7 +271,7 @@ namespace Common
             var lat_rad = lat * PI / 180;
             var n = Math.Pow(2.0, zoom);
             var xtile = (lng + 180.0) / 360.0 * n;
-            var ytile = (1.0 - Math.Log(Math.Tan(lat_rad) + (1 / Math.Cos(lat_rad))) / PI) / 2.0 * n;
+            var ytile = (1.0 - Math.Log(Math.Tan(lat_rad) + 1 / Math.Cos(lat_rad)) / PI) / 2.0 * n;
             return new TileXY((int)xtile, (int)ytile, zoom);
         }
         /// <summary>
@@ -300,10 +316,10 @@ namespace Common
         public static TileXY BDlatlng2TileXY(double lng, double lat, int zoom)//x,y百度坐标 zoom 放大级别
         {
             MercatorPoint p = BDLatLng2Mercator(new GeoLatLng(lat, lng));
-            double x1 = (p.x / Math.Pow(2, (18 - zoom))) / 256;
-            double y1 = (p.y / Math.Pow(2, (18 - zoom))) / 256;
+            double x1 = p.x / Math.Pow(2, 18 - zoom) / 256;
+            double y1 = p.y / Math.Pow(2, 18 - zoom) / 256;
             x1 = Math.Pow(2, zoom - 26) * (PI * lng * r / 180);
-            y1 = Math.Pow(2, zoom - 26) * r * Math.Log(Math.Tan(PI * lat / 180) + 1 / (Math.Cos(PI * lat / 180)));
+            y1 = Math.Pow(2, zoom - 26) * r * Math.Log(Math.Tan(PI * lat / 180) + 1 / Math.Cos(PI * lat / 180));
             return new TileXY((int)x1, (int)y1, zoom);
         }
         private static double[] BDConvertor(double x, double y, double[] param)
@@ -311,8 +327,8 @@ namespace Common
             var T = param[0] + param[1] * Math.Abs(x);
             var cC = Math.Abs(y) / param[9];
             var cF = param[2] + param[3] * cC + param[4] * cC * cC + param[5] * cC * cC * cC + param[6] * cC * cC * cC * cC + param[7] * cC * cC * cC * cC * cC + param[8] * cC * cC * cC * cC * cC * cC;
-            T *= (x < 0 ? -1 : 1);
-            cF *= (y < 0 ? -1 : 1);
+            T *= x < 0 ? -1 : 1;
+            cF *= y < 0 ? -1 : 1;
             return new double[] { T, cF };
         }
         /// <summary>
@@ -366,6 +382,41 @@ namespace Common
             }
             double[] res = BDConvertor(p.longitude, p.latitude, arr);
             return new MercatorPoint((float)res[0], (float)res[1]);
+        }
+
+
+        /// <summary>
+        /// 检查经纬度是否有效
+        /// </summary>
+        /// <param name="la">纬度</param>
+        /// <param name="lo">经度</param>
+        /// <returns></returns>
+        public static bool CheckLaLo(double la, double lo)
+        {
+            if (la == 0 && lo == 0 || la == 1 && lo == 1) return false;
+            if (lo < -180 || la < -90 || lo > 180 || la > 90) return false;
+            return true;
+        }
+
+        static int[] baiduX = { 0, 0, 1, 3, 5, 10, 20, 42, 84, 169, 339, 678, 1357, 2715, 5431, 10862, 21724, 43448 };
+        static int[] baiduY = { 0, 0, 0, 1, 2, 3, 8, 16, 32, 65, 131, 262, 525, 1050, 2100, 4200, 8401, 16802 };
+        static int[] googleX = { 0, 1, 3, 7, 13, 26, 52, 106, 212, 425, 851, 1702, 3405, 6811, 13623, 27246, 54492, 108984 };
+        static int[] googleY = { 0, 0, 1, 2, 5, 12, 23, 47, 95, 190, 380, 761, 1522, 3045, 6091, 12183, 24366, 48733 };
+
+        public static void GoogleToBaiDuTile(ref int x, ref int y, int z)
+        {
+            int bx = baiduX[z - 1];// 395
+            int gx = googleX[z - 1];// 11:843,12:1685
+            // int gx = g + (x-b);// --- 1587+
+            x = x - gx + bx;// --- 1587+
+            // 谷歌瓦片行编号=[谷歌参照瓦片行编号+(百度行编号 – 百度参照瓦片行编号)]
+
+            int by = baiduY[z - 1];// 147
+            int gy = googleY[z - 1];// 10:
+            // int gy = g - (y-b);//
+            y = gy + by - y;//
+            // 谷歌瓦片列编号=[谷歌参照瓦片列编号- (百度列编号 – 百度参照瓦片列编号)] //向上，列为递减
+
         }
     }
     /// <summary>
