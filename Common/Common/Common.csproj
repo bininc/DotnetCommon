@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <UsingTask TaskName="GetCurrentBuildVersion" AssemblyFile="lib\BuildVersion.Task.dll" />
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <TargetFrameworks>netstandard2.1;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Es.Extensions.Logging.NLog" Version="1.0.8" />
@@ -19,6 +19,15 @@
     <Folder Include="Threading\Tasks\" />
     <Folder Include="_Extensions\System\Collections\Generic\" />
     <Folder Include="_Extensions\System\Threading\Tasks\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="TestCommon\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="TestCommon\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="TestCommon\**" />
   </ItemGroup>
   <Target Name="BeforeBuildActionsProject1" BeforeTargets="BeforeBuild">
     <GetCurrentBuildVersion BaseVersion="$(FileVersion)">
