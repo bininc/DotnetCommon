@@ -132,7 +132,7 @@ namespace Common
         /// </summary>
         public static DateTime TodayDate
         {
-            get { return DateTime.Today; }
+            get { return DateTimeNow.Date; }
         }
 
         /// <summary>
@@ -164,7 +164,8 @@ namespace Common
         /// <returns></returns>
         public static DateTime GetDayBegin(DateTime dt)
         {
-            return StringToDateTime(dt.ToString(FormatDayBeginStr));
+            //return StringToDateTime(dt.ToString(FormatDayBeginStr));
+            return dt.Date;
         }
         /// <summary>
         /// 获取当天起始时间
@@ -209,7 +210,8 @@ namespace Common
         /// <returns></returns>
         public static DateTime GetDayEnd(DateTime dt)
         {
-            return StringToDateTime(dt.ToString(FormatDayEndStr), "yyyy-MM-dd HH:mm:ss");
+            //return StringToDateTime(dt.ToString(FormatDayEndStr), "yyyy-MM-dd HH:mm:ss");
+            return dt.Date.AddDays(1).AddMilliseconds(-1);
         }
         /// <summary>
         /// 获取当天结束时间

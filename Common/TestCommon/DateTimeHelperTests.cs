@@ -1,3 +1,5 @@
+using System;
+using Common;
 using NUnit.Framework;
 
 namespace TestCommon
@@ -13,8 +15,11 @@ namespace TestCommon
         [Test]
         public void Test1()
         {
-            
-            Assert.Pass();
+            Console.WriteLine(DateTimeHelper.Now.ToDayBegin());
+            Assert.AreEqual(DateTimeHelper.Now.ToDayBegin(),DateTime.Today);
+            Console.WriteLine(DateTimeHelper.Now.ToFormatDayEndStr());
+            Assert.AreEqual(DateTimeHelper.Now.ToFormatDayEndStr(), "2020-05-13 23:59:59");
+            //Assert.Pass();
         }
     }
 }
