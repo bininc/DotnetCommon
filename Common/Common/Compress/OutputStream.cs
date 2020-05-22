@@ -67,7 +67,7 @@ namespace Common.Compress
             while (num != 1 && (this.zip.InputCount > 0 || this.zip.OutputCount == 0));
         }
 
-        public virtual void Close()
+        public new virtual void Close()
         {
             try
             {

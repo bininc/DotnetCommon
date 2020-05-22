@@ -57,6 +57,7 @@ namespace Common
 
         /// <summary>
         /// 日期时间格式化字符串
+        /// yyyy-MM-dd HH:mm:ss
         /// </summary>
         public static string FormatDateTimeStr
         {
@@ -65,12 +66,14 @@ namespace Common
 
         /// <summary>
         /// 日期格式化字符串
+        /// yyyy-MM-dd
         /// </summary>
         public static string FormatDateStr
         { get { return "yyyy-MM-dd"; } }
 
         /// <summary>
         /// 时间格式化字符串
+        /// HH:mm:ss
         /// </summary>
         public static string FormatTimeStr
         {
@@ -80,6 +83,7 @@ namespace Common
         private static string _formatDayBeginStr = "yyyy-MM-dd 00:00:00";
         /// <summary>
         /// 当天开始日期格式化字符串
+        /// yyyy-MM-dd 00:00:00
         /// </summary>
         public static string FormatDayBeginStr
         {
@@ -94,6 +98,7 @@ namespace Common
         private static string _formatDayEndStr = "yyyy-MM-dd 23:59:59";
         /// <summary>
         /// 当天结束日期格式化字符串
+        /// yyyy-MM-dd 23:59:59
         /// </summary>
         public static string FormatDayEndStr
         {
@@ -121,6 +126,7 @@ namespace Common
 
         /// <summary>
         /// 现在日期时间字符串格式
+        /// yyyy-MM-dd HH:mm:ss
         /// </summary>
         public static string DateTimeNowStr
         {
@@ -137,6 +143,7 @@ namespace Common
 
         /// <summary>
         /// 当天日期字符串
+        /// yyyy-MM-dd
         /// </summary>
         public static string TodayDateStr
         {
@@ -153,6 +160,7 @@ namespace Common
 
         /// <summary>
         /// 现在时间字符串
+        /// HH:mm:ss
         /// </summary>
         public static string TimeNowStr
         { get { return DateTimeNow.ToString(FormatTimeStr); } }
@@ -179,6 +187,7 @@ namespace Common
 
         /// <summary>
         /// 获取当天起始时间字符串
+        /// yyyy-MM-dd 00:00:00
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -197,6 +206,7 @@ namespace Common
 
         /// <summary>
         /// 今天起始时间字符串
+        /// yyyy-MM-dd 00:00:00
         /// </summary>
         public static string TodayBeginStr
         {
@@ -225,6 +235,7 @@ namespace Common
 
         /// <summary>
         /// 获取当天结束时间字符串
+        /// yyyy-MM-dd 23:59:59
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -243,6 +254,7 @@ namespace Common
 
         /// <summary>
         /// 今天结束时间字符串
+        /// yyyy-MM-dd 23:59:59
         /// </summary>
         public static string TodayEndStr
         {
@@ -261,6 +273,7 @@ namespace Common
 
         /// <summary>
         /// 获取时间日期字符串格式
+        /// yyyy-MM-dd HH:mm:ss
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -271,6 +284,7 @@ namespace Common
 
         /// <summary>
         /// 将时间格式化成指定格式
+        /// yyyy-MM-dd HH:mm:ss
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -283,6 +297,7 @@ namespace Common
 
         /// <summary>
         /// 将时间格式化成指定格式
+        /// yyyy-MM-dd
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -293,6 +308,7 @@ namespace Common
 
         /// <summary>
         /// 将时间格式化成指定格式
+        /// yyyy-MM-dd 00:00:00
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -303,6 +319,7 @@ namespace Common
 
         /// <summary>
         /// 将时间格式化成指定格式
+        /// yyyy-MM-dd 23:59:59
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -313,6 +330,7 @@ namespace Common
 
         /// <summary>
         /// 将时间格式化成指定格式
+        /// HH:mm:ss
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -344,10 +362,12 @@ namespace Common
         {
             return DateTimeToTimestamp(time, isMilsec);
         }
+
         /// <summary>
         /// 时间戳转换为datetime
         /// </summary>
-        /// <param name="timestamp"></param>
+        /// <param name="timestamp">时间戳</param>
+        /// <param name="isMilsec">是否毫秒模式</param>
         /// <returns></returns>
         public static DateTime TimestampToDateTime(ulong timestamp, bool isMilsec = false)
         {
@@ -371,7 +391,7 @@ namespace Common
         /// 把字符串转换为时间
         /// </summary>
         /// <param name="timestr">时间字符串</param>
-        /// <param name="formatstr">格式化字符串</param>
+        /// <param name="formatstr">格式化字符串 默认：yyyy-MM-dd HH:mm:ss</param>
         /// <returns></returns>
         public static DateTime StringToDateTime(string timestr, string formatstr = "yyyy-MM-dd HH:mm:ss")
         {
